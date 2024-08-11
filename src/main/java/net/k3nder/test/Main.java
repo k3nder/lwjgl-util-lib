@@ -7,6 +7,7 @@ import net.k3nder.gl.shader.Shader;
 import net.k3nder.gl.shader.Shaders;
 import net.k3nder.gl.visual.Texture;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,13 +18,14 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class Main extends Window {
-    private GraphicalObject cube;
-    private GraphicalObject cube2;
-    private GraphicalObject lightCube;
+    private List<Cube> blocks = new ArrayList<>();
+    private Pointer pointer;
     private Shader shader;
     private Player player;
     private boolean firstMouse;
     private boolean isEsc;
+    private int selectedBlock;
+    private int renderingBlocks = 0;
 
 
 
@@ -36,17 +38,16 @@ public class Main extends Window {
 
     public Main() {
         super(800, 900, "hello");
+        blocks = new ArrayList<>();
+        blocks.add(new Cube(new Vector3f(0)));
     }
     @Override
     public void createComponents() {
         try {
 
-
-            cube = new Cube(new Vector3f(0.0f));
-            cube2 = new Cube(new Vector3f(1.0f));
-
+            pointer = new Pointer();
             player = new Player(new Vector3f(0.0f), Camera.create(WIDTH, HEIGHT));
-            lightCube = new LightCube(new Vector3f(3.0f), new Vector3f(1, 0, 0), player.getCamera());
+            //lightCube = new LightCube(new Vector3f(3.0f), new Vector3f(1, 0, 0), player.getCamera());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -69,27 +70,24 @@ public class Main extends Window {
         player.getCamera().apply(shader);
         //pointer.render(shader);
 
-        lightCube.render(shader);
+        blocks.forEach(v -> v.render(shader));
 
         //shader.setV3f("color", new Vector3f(1, 0,0));
         player.render(shader);
-        cube.render(shader);
-        cube2.render(shader);
+        pointer.render(shader);
 
-        List<GraphicalObject> object = new ArrayList<>();
-        object.add(cube);
-        object.add(cube2);
-        object.add(lightCube);
-
-        System.out.println(player.getCamera().checks(object, 10));
+        selectedBlock = player.getCamera().checks(blocks, 10);
+        if (renderingBlocks != blocks.size()) {
+            System.out.println("rendering " + blocks.size() + " blocks");
+            renderingBlocks = blocks.size();
+        }
     }
 
     @Override
     public void initComponents() {
         Cube.texture.init();
-        cube.init();
-        cube2.init();
-        lightCube.init();
+        pointer.init();
+        blocks.forEach(Cube::init);
         player.init();
         shader = Shaders.getDefaultShader("simple");
     }
@@ -118,9 +116,87 @@ public class Main extends Window {
 
      @Override
      public void MouseClickCallback(long id, int button, int action, int mods) {
-        if(cube.selected) cube.Clicked();
-        if(cube2.selected) cube2.Clicked();
-        if(lightCube.selected) lightCube.Clicked();
+         if (button == org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT && action == org.lwjgl.glfw.GLFW.GLFW_PRESS) {
+             if (selectedBlock != -1) {
+                 Vector3f pos = new Vector3f();
+                 blocks.get(selectedBlock).getModel().getTranslation(pos);
+
+                 Vector3f cameraPos = new Vector3f(player.getCamera().getPos());
+                 Vector3f cameraDir = new Vector3f(player.getCamera().getCameraFront()).normalize();
+
+                 // Coordenadas mínimas y máximas del cubo seleccionado
+                 Vector3f max = blocks.get(selectedBlock).getMax();
+                 Vector3f min = blocks.get(selectedBlock).getMin();
+
+                 // Variables para guardar el t (factor de escala del rayo)
+                 float tMin = Float.NEGATIVE_INFINITY;
+                 float tMax = Float.POSITIVE_INFINITY;
+
+                 // Calcular la intersección del rayo con el AABB (cubo)
+                 for (int i = 0; i < 3; i++) {
+                     float invD = 1.0f / cameraDir.get(i);
+                     float t0 = (min.get(i) - cameraPos.get(i)) * invD;
+                     float t1 = (max.get(i) - cameraPos.get(i)) * invD;
+                     if (invD < 0.0f) {
+                         float temp = t0;
+                         t0 = t1;
+                         t1 = temp;
+                     }
+                     tMin = Math.max(tMin, t0);
+                     tMax = Math.min(tMax, t1);
+                     if (tMax <= tMin) {
+                         return; // No hay intersección
+                     }
+                 }
+
+                 // Punto de intersección
+                 Vector3f hitPoint = new Vector3f(cameraPos).add(new Vector3f(cameraDir).mul(tMin));
+
+                 // Determinar la cara que fue seleccionada
+                 if (Math.abs(hitPoint.x - max.x) < 0.001f) {
+                     System.out.println("right face of the cube");
+                     pos.add(new Vector3f(1, 0, 0));
+                 } else if (Math.abs(hitPoint.x - min.x) < 0.001f) {
+                     System.out.println("left face of the cube");
+                     pos.add(new Vector3f(-1, 0, 0));
+                 } else if (Math.abs(hitPoint.y - max.y) < 0.001f) {
+                     System.out.println("top face of the cube");
+                     pos.add(new Vector3f(0, 1, 0));
+                 } else if (Math.abs(hitPoint.y - min.y) < 0.001f) {
+                     System.out.println("bottom face of the cube");
+                     pos.add(new Vector3f(0, -1, 0));
+                 } else if (Math.abs(hitPoint.z - max.z) < 0.001f) {
+                     System.out.println("front face of the cube");
+                     pos.add(new Vector3f(0, 0, 1));
+                 } else if (Math.abs(hitPoint.z - min.z) < 0.001f) {
+                     System.out.println("back face of the cube");
+                     pos.add(new Vector3f(0, 0, -1));
+                 } else {
+                     System.out.println("no selected block");
+                     return;
+                 }
+
+                 System.out.println("last " + blocks.size());
+
+                 Cube block = new Cube(pos);
+                 block.init();
+                 blocks.add(0, block);
+
+                 System.out.println("now " + blocks.size());
+
+                 selectedBlock = player.getCamera().checks(blocks, 10);
+
+                 System.out.println(selectedBlock);
+
+                 //selectedBlock = blocks.size();
+             }
+         } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == org.lwjgl.glfw.GLFW.GLFW_PRESS) {
+             selectedBlock = player.getCamera().checks(blocks, 10);
+            if (selectedBlock != -1) {
+                blocks.remove(selectedBlock);
+                System.out.println(selectedBlock);
+            }
+         }
      }
 
     @Override
@@ -211,5 +287,24 @@ class Cube extends net.k3nder.gl.objects.Cube {
     @Override
     public void init() {
         polygon.create(GL_STATIC_DRAW);
+    }
+}
+class Pointer extends Cube {
+    private Shader customShader;
+    public Pointer() {
+        super(new Vector3f(0.0f, 0.0f, 0.0f));
+        model.getTranslation(new Vector3f(0));
+        model.scale(new Vector3f(0.05f, 0.05f, 0.0f));
+    }
+    @Override
+    public void init() {
+        super.init();
+        customShader = Shaders.getDefaultShader("static_model_color");
+    }
+    @Override
+    public void render(Shader shade) {
+        customShader.use();
+        customShader.setVec3("color", model.getTranslation(new Vector3f(1)));
+        super.render(customShader);
     }
 }
