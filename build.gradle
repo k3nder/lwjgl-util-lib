@@ -121,9 +121,9 @@ test {
 }
 sonatypeCentralUpload {
     FileInputStream fileInputStream = new FileInputStream("maven/pom.xml")
-    String cont = new String(fileInputStream.readAllBytes());
+    String content = new String(fileInputStream.readAllBytes());
 
-    String newFileContent = cont.replaceAll("(<version>)(.*?)(</version>)", '$1' + version + '$3')
+    String newFileContent = content.replaceAll("(<version>)(.*?)(</version>)", '$1' + version + '$3')
 
     FileWriter writer = new FileWriter("maven/pom.xml")
     writer.write(newFileContent)
@@ -133,8 +133,6 @@ sonatypeCentralUpload {
     password = "${System.getenv("SONATYPE_PASSWORD")}"
     archives = files("build/libs/${project.name}-${version}.jar", "build/libs/${project.name}-${version}-sources.jar", "build/libs/${project.name}-${version}-javadoc.jar")
     pom = file("maven/pom.xml")
-
-    println System.getenv("SONATYPE_USERNAME")
 
     signingKey = readFile("/home/kristian/.config/private-key.gpg")
     signingKeyPassphrase = "${System.getenv("SINGING_PASSWORD")}"
