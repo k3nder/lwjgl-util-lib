@@ -4,7 +4,9 @@ import net.k3nder.gl.shader.Shader;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 public class Camera implements Applicable<Shader> {
     private Vector3f cameraPos   = new Vector3f(0.0f, 0.0f,  -3.0f);
@@ -151,42 +153,102 @@ public class Camera implements Applicable<Shader> {
     }
     public boolean check(GraphicalObject modelMatrix, float maxDistance) {
         var cameraPos = new Vector3f(this.cameraPos);
-        var rayDirection = new Vector3f(this.cameraFront);
-        // Invertir la matriz del modelo para transformar el rayo al espacio local del cubo
-        Matrix4f inverseModel = new Matrix4f(modelMatrix.getModel()).invert();
+        var rayDirection = new Vector3f(this.cameraFront).normalize();
 
-        // Transformar la posición de la cámara y la dirección del rayo al espacio local del cubo
-        Vector3f localRayOrigin = cameraPos.mulPosition(inverseModel, new Vector3f());
-        Vector3f localRayDirection = rayDirection.mulDirection(inverseModel, new Vector3f()).normalize();
+        // Calcular el punto máximo y mínimo del AABB
+        Vector3f max = modelMatrix.getMax();
+        Vector3f min = modelMatrix.getMin();
 
-        // Definir el AABB del cubo en su espacio local (por ejemplo, desde -1 a 1 en todas las dimensiones)
-        Vector3f boxMin = modelMatrix.getMin();
-        Vector3f boxMax = modelMatrix.getMax();
+        // Variables para guardar los tiempos de entrada y salida
+        float tmin = (min.x - cameraPos.x) / rayDirection.x;
+        float tmax = (max.x - cameraPos.x) / rayDirection.x;
 
-        // Comprobar si el rayo intersecta el cubo
-        Vector3f invDir = new Vector3f(1.0f / localRayDirection.x, 1.0f / localRayDirection.y, 1.0f / localRayDirection.z);
-        Vector3f tMin = new Vector3f(boxMin).sub(localRayOrigin).mul(invDir);
-        Vector3f tMax = new Vector3f(boxMax).sub(localRayOrigin).mul(invDir);
-        Vector3f t1 = new Vector3f(Math.min(tMin.x, tMax.x), Math.min(tMin.y, tMax.y), Math.min(tMin.z, tMax.z));
-        Vector3f t2 = new Vector3f(Math.max(tMin.x, tMax.x), Math.max(tMin.y, tMax.y), Math.max(tMin.z, tMax.z));
-
-        float tNear = Math.max(Math.max(t1.x, t1.y), t1.z);
-        float tFar = Math.min(Math.min(t2.x, t2.y), t2.z);
-
-        // Verificar si hay una intersección y si está dentro de la distancia especificada
-        if (tNear <= tFar && tFar > 0) {
-            return tNear <= maxDistance;
+        if (tmin > tmax) {
+            float temp = tmin;
+            tmin = tmax;
+            tmax = temp;
         }
 
-        return false;
+        float tymin = (min.y - cameraPos.y) / rayDirection.y;
+        float tymax = (max.y - cameraPos.y) / rayDirection.y;
+
+        if (tymin > tymax) {
+            float temp = tymin;
+            tymin = tymax;
+            tymax = temp;
+        }
+
+        if ((tmin > tymax) || (tymin > tmax)) {
+            return false;
+        }
+
+        if (tymin > tmin) {
+            tmin = tymin;
+        }
+
+        if (tymax < tmax) {
+            tmax = tymax;
+        }
+
+        float tzmin = getTmin(modelMatrix, cameraPos, rayDirection);
+
+        // Verificar si la intersección está dentro del rango máximo de distancia
+        return tmin < maxDistance && tmax > 0;
     }
-    public int checks(List<GraphicalObject> objects, float maxDistance) {
-        int i = 0;
-        for (GraphicalObject object : objects) {
-            if (check(object, maxDistance)) return i;
-            i++;
+    public <T extends GraphicalObject> int checks(List<T> objects, float maxDistance) {
+        int closestIndex = -1;
+        float closestTmin = Float.MAX_VALUE;
+
+        for (int i = 0; i < objects.size(); i++) {
+            GraphicalObject object = objects.get(i);
+            if (check(object, maxDistance)) {
+                // Calcular la distancia mínima 'tmin' para el objeto actual
+                Vector3f cameraPos = new Vector3f(this.cameraPos);
+                Vector3f rayDirection = new Vector3f(this.cameraFront).normalize();
+
+                float tmin = getTmin(object, cameraPos, rayDirection);
+
+                // Si la intersección es válida y más cercana que la anterior, actualiza el índice
+                if (tmin < closestTmin && tmin >= 0) {
+                    closestTmin = tmin;
+                    closestIndex = i;
+                }
+            }
         }
-        return -1;
+
+        return closestIndex;
+    }
+
+    private static float getTmin(GraphicalObject object, Vector3f cameraPos, Vector3f rayDirection) {
+        Vector3f max = object.getMax();
+        Vector3f min = object.getMin();
+
+        float tminX = (min.x - cameraPos.x) / rayDirection.x;
+        float tmaxX = (max.x - cameraPos.x) / rayDirection.x;
+        if (tminX > tmaxX) {
+            float temp = tminX;
+            tminX = tmaxX;
+            tmaxX = temp;
+        }
+
+        float tminY = (min.y - cameraPos.y) / rayDirection.y;
+        float tmaxY = (max.y - cameraPos.y) / rayDirection.y;
+        if (tminY > tmaxY) {
+            float temp = tminY;
+            tminY = tmaxY;
+            tmaxY = temp;
+        }
+
+        float tminZ = (min.z - cameraPos.z) / rayDirection.z;
+        float tmaxZ = (max.z - cameraPos.z) / rayDirection.z;
+        if (tminZ > tmaxZ) {
+            float temp = tminZ;
+            tminZ = tmaxZ;
+            tmaxZ = temp;
+        }
+
+        float tmin = Math.max(tminX, Math.max(tminY, tminZ));
+        return tmin;
     }
 }
 
