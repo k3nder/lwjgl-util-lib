@@ -47,10 +47,10 @@ jobs:
         run: |
           version=$(./gradlew properties | grep 'version:' | awk '{print $2}')
           prerelease=false
-          prerelease_mark=beta
-          if [[ $version == *$prerelease_mark* ]]; then
-            prerelease=true
-          echo "version=$version" >> $GITHUB_ENV
+          #prerelease_mark=beta
+          #if [[ $version == *$prerelease_mark* ]]; then
+          #  prerelease=true
+          #echo "version=$version" >> $GITHUB_ENV
           echo "prerelease=$prerelease" >> $GITHUB_ENV
 
       - name: Push github release
@@ -59,6 +59,5 @@ jobs:
           files: build/libs/*
           tag_name: ${{ env.version }}
           name: ${{ env.artifact }}-${{ env.version }}
-          prerelease: ${{ env.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
