@@ -50,7 +50,7 @@ jobs:
           prerelease_mark=beta
           if [[ $version == *$prerelease_mark* ]]; then
             prerelease=true
-          echo "version=$version" >> $GITHUB_ENV
+          #echo "version=$version" >> $GITHUB_ENV
           echo "prerelease=$prerelease" >> $GITHUB_ENV
 
       - name: Push github release
