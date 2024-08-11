@@ -118,9 +118,9 @@ public class Main extends Window {
 
      @Override
      public void MouseClickCallback(long id, int button, int action, int mods) {
-        if(cube.selected) cube.Clicked();
-        if(cube2.selected) cube2.Clicked();
-        if(lightCube.selected) lightCube.Clicked();
+        if(cube.getSelected()) cube.Clicked();
+        if(cube2.getSelected()) cube2.Clicked();
+        if(lightCube.getSelected()) lightCube.Clicked();
      }
 
     @Override
