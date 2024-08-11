@@ -123,10 +123,10 @@ sonatypeCentralUpload {
     FileInputStream fileInputStream = new FileInputStream("maven/pom.xml")
     String cont = new String(fileInputStream.readAllBytes());
 
-    String nesw = cont.replaceAll("(<version>)(.*?)(</version>)", '$1' + version + '$3')
+    String newFileContent = cont.replaceAll("(<version>)(.*?)(</version>)", '$1' + version + '$3')
 
     FileWriter writer = new FileWriter("maven/pom.xml")
-    writer.write(nesw)
+    writer.write(newFileContent)
     writer.close()
 
     username = "${System.getenv("SONATYPE_USERNAME")}"
@@ -142,7 +142,8 @@ sonatypeCentralUpload {
 
     publishingType = "AUTOMATIC"
 }
-String readFile(String file) {
+
+static String readFile(String file) {
     FileReader reader = new FileReader(file);
     StringBuilder result = new StringBuilder();
     for (final def str in reader.readLines()) {

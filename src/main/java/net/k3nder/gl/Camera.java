@@ -148,10 +148,6 @@ public class Camera implements Applicable<Shader> {
         }
         return cameraPos;
     }
-    public Vector3f getRotation() {
-        //return new Vector3f(pitch)
-        return null;
-    }
     public Vector3f getCameraFront() {
         return cameraFront;
     }

@@ -12,7 +12,6 @@ public class Vertex {
     private Vector3f vertex;
     private Vector2f texture;
     private Vector3f normal;
-    //private Vector3f normal;
     protected Vertex() {}
     public static Vertex create(Vector3f vertex, Vector3f normal, Vector2f texture) {
         Vertex v = new Vertex();

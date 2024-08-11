@@ -54,7 +54,7 @@ public abstract class Window implements Initializable {
     public void createComponents() {}
     public void windowConf() {
         glfwMakeContextCurrent(id);
-        glfwSetFramebufferSizeCallback(id, this::bufferSizeCallback);
+        glfwSetFramebufferSizeCallback(id, this::BufferSizeCallback);
         glfwSetCursorPosCallback(id, this::MousePosCallback);
         glfwSetScrollCallback(id, this::MouseScrollCallback);
         glfwSetMouseButtonCallback(id, this::MouseClickCallback);
@@ -78,7 +78,7 @@ public abstract class Window implements Initializable {
     public void cleanup() {
 
     }
-    protected void bufferSizeCallback(long window, int width, int height) {
+    protected void BufferSizeCallback(long window, int width, int height) {
         glViewport(0,0, width, height);
     }
     public void ControlsCallback() {
