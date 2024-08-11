@@ -14,7 +14,7 @@ public abstract class GraphicalObject implements Initializable, Renderable<Shade
     protected Polygon polygon;
     protected Texture texture;
     protected Matrix4f model;
-    public Boolean selected;
+    protected Boolean selected;
 
     public GraphicalObject() {
         model = new Matrix4f();
@@ -56,8 +56,6 @@ public abstract class GraphicalObject implements Initializable, Renderable<Shade
         }
         return transformedVertices;
     }
-
-    // Obtener los límites del cubo transformado
     public Vector3f getMin() {
         Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
         for (Vector3f v : getTransformedVertices()) {
@@ -72,9 +70,6 @@ public abstract class GraphicalObject implements Initializable, Renderable<Shade
             max.max(v);
         }
         return max;
-    }
-    public Matrix4f getModel() {
-        return model;
     }
     public void checkCameraPointer(Camera camera) {
         if (camera.check(this, 100)) {
@@ -92,13 +87,43 @@ public abstract class GraphicalObject implements Initializable, Renderable<Shade
         }
     }
     private boolean lastSelected;
-    public void Selected() {
+    public void Selected() {}
+    public void Unselected() {}
+    public void Clicked() {}
 
+    public Boolean getSelected() {
+        return selected;
     }
-    public void Unselected() {
 
+    public GraphicalObject setSelected(Boolean selected) {
+        this.selected = selected;
+        return this;
     }
-    public void Clicked() {
 
+    public Matrix4f getModel() {
+        return model;
+    }
+
+    public GraphicalObject setModel(Matrix4f model) {
+        this.model = model;
+        return this;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public GraphicalObject setTexture(Texture texture) {
+        this.texture = texture;
+        return this;
+    }
+
+    public Polygon getPolygon() {
+        return polygon;
+    }
+
+    public GraphicalObject setPolygon(Polygon polygon) {
+        this.polygon = polygon;
+        return this;
     }
 }
