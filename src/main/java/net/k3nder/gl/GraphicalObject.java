@@ -14,7 +14,7 @@ public abstract class GraphicalObject implements Initializable, Renderable<Shade
     protected Polygon polygon;
     protected Texture texture;
     protected Matrix4f model;
-    public Boolean selected;
+    public Boolean selected = false;
 
     public GraphicalObject() {
         model = new Matrix4f();
