@@ -53,41 +53,40 @@ public class Texture {
     }
 
     public void init() {
-        MemoryStack stack = stackPush();
+        try (MemoryStack stack = stackPush()) {
 
-        IntBuffer w = stack.mallocInt(1);
-        IntBuffer h = stack.mallocInt(1);
-        IntBuffer channels = stack.mallocInt(1);
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
 
-        ByteBuffer buffer = null;
-        try {
+            ByteBuffer buffer = null;
             buffer = readInputStreamToByteBuffer(image);
             if (buffer == null)
                 throw new IOException("Failed to read texture buffer");
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            ByteBuffer data = STBImage.stbi_load_from_memory(buffer, w, h, channels, dChannels);
+
+            width = w.get(0);
+            height = h.get(0);
+
+            id = glGenTextures();
+            glBindTexture(type, id);
+
+            loadConfigurations(type);
+            STBImage.stbi_set_flip_vertically_on_load(flipV);
+
+
+            if (type == GL_TEXTURE_1D) {
+                glTexImage1D(type, 0, colorChannel, width, 0, colorChannel, GL_UNSIGNED_BYTE, data);
+            } else if (type == GL_TEXTURE_2D) {
+                glTexImage2D(type, 0, colorChannel, width, height, 0, colorChannel, GL_UNSIGNED_BYTE, data);
+            }
+            glGenerateMipmap(type);
+
+            stbi_image_free(data);
+        } catch (Exception t) {
+            t.printStackTrace();
         }
-
-        ByteBuffer data = STBImage.stbi_load_from_memory(buffer, w, h, channels,  dChannels);
-
-        width = w.get(0);
-        height = h.get(0);
-
-        id = glGenTextures();
-        glBindTexture(type, id);
-
-        loadConfigurations(type);
-        STBImage.stbi_set_flip_vertically_on_load(flipV);
-
-
-        if (type == GL_TEXTURE_1D) {
-            glTexImage1D(type, 0, colorChannel, width, 0, colorChannel, GL_UNSIGNED_BYTE, data);
-        } else if (type == GL_TEXTURE_2D) {
-            glTexImage2D(type, 0, colorChannel, width, height, 0, colorChannel, GL_UNSIGNED_BYTE, data);
-        }
-        glGenerateMipmap(type);
-
-        stbi_image_free(data);
     }
 
     private void loadConfigurations(int textureType) {
