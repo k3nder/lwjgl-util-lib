@@ -4,11 +4,8 @@ import net.k3nder.gl.GraphicalObject;
 import net.k3nder.gl.model.Polygon;
 import net.k3nder.gl.model.Vertex;
 import net.k3nder.gl.visual.Texture;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-import java.io.IOException;
 
 public class Cube extends GraphicalObject {
     public static final Polygon CUBE = Polygon.builder()
