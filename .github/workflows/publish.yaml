@@ -56,7 +56,7 @@ jobs:
       - name: Push github release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/libs/*
+          files: build/libs/sonatype-central-upload/io/github/k3nder/${{ env.artifact }}/${{ env.version }}/*
           tag_name: ${{ env.version }}
           name: ${{ env.artifact }}-${{ env.version }}
           prerelease: ${{ env.prerelease }}
