@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.github.k3nder'
-version = '2.0.0-beta'
+version = '2.0.0'
 
 
 def lwjglVersion = "3.3.4"
@@ -134,18 +134,9 @@ sonatypeCentralUpload {
     archives = files("build/libs/${project.name}-${version}.jar", "build/libs/${project.name}-${version}-sources.jar", "build/libs/${project.name}-${version}-javadoc.jar")
     pom = file("maven/pom.xml")
 
-    signingKey = readFile("/home/kristian/.config/private-key.gpg")
+    signingKey = System.getenv("SINGING_KEY")
     signingKeyPassphrase = "${System.getenv("SINGING_PASSWORD")}"
-    publicKey = readFile("/home/kristian/.config/public-key.gpg")
+    publicKey = System.getenv("PUBLIC_KEY")
 
     publishingType = "AUTOMATIC"
-}
-
-static String readFile(String file) {
-    FileReader reader = new FileReader(file);
-    StringBuilder result = new StringBuilder();
-    for (final def str in reader.readLines()) {
-        result.append(str).append("\n");
-    }
-    return result.toString()
 }
