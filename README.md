@@ -74,16 +74,14 @@ public void draw() {
 With this call to render we will get an error, since the render function requires that we pass a Shader, here we have the complete and functional class:
 
 ```java
-import net.k3nder.gl.GraphicalObject;
+import net.k3nder.gl.graphic.GraphicalObject;
 import net.k3nder.gl.Window;
-import net.k3nder.gl.objects.Cube;
-import net.k3nder.gl.shader.Shader;
-import net.k3nder.gl.shader.Shaders;
-import net.k3nder.gl.visual.Texture;
+import net.k3nder.gl.graphic.objects.Cube;
+import net.k3nder.gl.graphic.shader.Shader;
+import net.k3nder.gl.graphic.shader.Shaders;
+import net.k3nder.gl.graphic.visual.Texture;
 import net.k3nder.test.Main;
 import org.joml.Vector3f;
-
-import java.io.File;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -91,11 +89,13 @@ public class MainWindow extends Window {
     public MainWindow() {
         super(800, 600, "My first window");
     }
+
     private GraphicalObject mycube;
     private Shader shader;
+
     @Override
     public void createComponents() {
-        mycube = new Cube( new Vector3f(0, 0,0),
+        mycube = new Cube(new Vector3f(0, 0, 0),
                 Texture.builder()
                         .colorChanel(GL_RGB)
                         .flipV()
@@ -107,6 +107,7 @@ public class MainWindow extends Window {
                         .create()
         );
     }
+
     @Override
     public void initComponents() {
         mycube.init();
