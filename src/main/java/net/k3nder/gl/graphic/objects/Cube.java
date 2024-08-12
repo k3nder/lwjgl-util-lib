@@ -1,9 +1,9 @@
-package net.k3nder.gl.objects;
+package net.k3nder.gl.graphic.objects;
 
-import net.k3nder.gl.GraphicalObject;
-import net.k3nder.gl.model.Polygon;
-import net.k3nder.gl.model.Vertex;
-import net.k3nder.gl.visual.Texture;
+import net.k3nder.gl.graphic.GraphicalObject;
+import net.k3nder.gl.graphic.model.Polygon;
+import net.k3nder.gl.graphic.model.Vertex;
+import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

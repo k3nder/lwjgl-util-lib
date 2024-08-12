@@ -1,12 +1,11 @@
 package net.k3nder.gl;
 
-import net.k3nder.gl.shader.Shader;
+import net.k3nder.gl.graphic.GraphicalObject;
+import net.k3nder.gl.graphic.shader.Shader;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 public class Camera implements Applicable<Shader> {
     private Vector3f cameraPos   = new Vector3f(0.0f, 0.0f,  -3.0f);

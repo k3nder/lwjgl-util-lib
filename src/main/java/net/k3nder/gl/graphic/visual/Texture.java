@@ -1,6 +1,6 @@
-package net.k3nder.gl.visual;
+package net.k3nder.gl.graphic.visual;
 
-import net.k3nder.gl.shader.Shader;
+import net.k3nder.gl.graphic.shader.Shader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;

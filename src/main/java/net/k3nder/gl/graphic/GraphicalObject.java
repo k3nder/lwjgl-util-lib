@@ -1,8 +1,12 @@
-package net.k3nder.gl;
+package net.k3nder.gl.graphic;
 
-import net.k3nder.gl.model.Polygon;
-import net.k3nder.gl.shader.Shader;
-import net.k3nder.gl.visual.Texture;
+import net.k3nder.gl.Camera;
+import net.k3nder.gl.Initializable;
+import net.k3nder.gl.Reloadable;
+import net.k3nder.gl.Renderable;
+import net.k3nder.gl.graphic.model.Polygon;
+import net.k3nder.gl.graphic.shader.Shader;
+import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 

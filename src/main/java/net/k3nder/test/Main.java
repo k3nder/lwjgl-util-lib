@@ -1,13 +1,11 @@
 package net.k3nder.test;
 
 import net.k3nder.gl.Camera;
-import net.k3nder.gl.GraphicalObject;
 import net.k3nder.gl.Window;
-import net.k3nder.gl.shader.Shader;
-import net.k3nder.gl.shader.Shaders;
-import net.k3nder.gl.visual.Texture;
+import net.k3nder.gl.graphic.shader.Shader;
+import net.k3nder.gl.graphic.shader.Shaders;
+import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -270,7 +268,7 @@ class LightCube extends Cube {
         customShader = Shaders.getDefaultShader("static_color");
     }
 }
-class Cube extends net.k3nder.gl.objects.Cube {
+class Cube extends net.k3nder.gl.graphic.objects.Cube {
     public static final Texture texture =
             Texture.builder()
                     .colorChanel(GL_RGB)

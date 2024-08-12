@@ -1,4 +1,4 @@
-package net.k3nder.gl.model;
+package net.k3nder.gl.graphic.model;
 
 import net.k3nder.gl.Reloadable;
 import net.k3nder.utils.UArray;
