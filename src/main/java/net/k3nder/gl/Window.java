@@ -10,12 +10,12 @@ public abstract class Window implements Initializable {
     protected Long id;
     protected final Integer WIDTH, HEIGHT;
     protected String title;
+    private boolean disableControls;
 
     public Window(Integer width, Integer height, String title) {
         this.WIDTH = width;
         this.HEIGHT = height;
         this.title = title;
-        createComponents();
     }
 
     public void init() {
@@ -38,7 +38,7 @@ public abstract class Window implements Initializable {
         glfwTerminate();
     }
     private void loop() {
-        ControlsCallback();
+        if(!disableControls) ControlsCallback();
 
         draw();
 
@@ -48,10 +48,9 @@ public abstract class Window implements Initializable {
     public void draw() {
 
     }
-    public void initComponents() {
+    public void components() {
 
     }
-    public void createComponents() {}
     public void windowConf() {
         glfwMakeContextCurrent(id);
         glfwSetFramebufferSizeCallback(id, this::BufferSizeCallback);
@@ -70,7 +69,7 @@ public abstract class Window implements Initializable {
     public void GLSetup() {
         GL.createCapabilities();
         glEnable(GL_DEPTH_TEST);
-        initComponents();
+        components();
     }
     public void GLFWSetup() {
         glfwDefaultWindowHints();
@@ -101,5 +100,42 @@ public abstract class Window implements Initializable {
     }
     public void setTitle(String title) {
         this.title = title;
+    }
+    public void disableControls() {
+        disableControls = true;
+    }
+    public void enableControls() {
+        disableControls = false;
+
+    }
+    public void disableKey() {
+        glfwSetKeyCallback(id, null);
+    }
+    public void enableKey() {
+        glfwSetKeyCallback(id, this::KeyCallback);
+    }
+    public void disableChar() {
+        glfwSetCharCallback(id, null);
+    }
+    public void enableChar() {
+        glfwSetCharCallback(id, this::CharCallback);
+    }
+    public void disableMousePos() {
+        glfwSetMouseButtonCallback(id, null);
+    }
+    public void enableMousePos() {
+        glfwSetCursorPosCallback(id, this::MousePosCallback);
+    }
+    public void disableMouseScroll() {
+        glfwSetScrollCallback(id, null);
+    }
+    public void enableMouseScroll() {
+        glfwSetScrollCallback(id, this::MouseScrollCallback);
+    }
+    public void disableMouseClick() {
+        glfwSetMouseButtonCallback(id, null);
+    }
+    public void enableMouseClick() {
+        glfwSetMouseButtonCallback(id, this::MouseClickCallback);
     }
 }

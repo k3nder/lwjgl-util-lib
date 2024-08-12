@@ -1,16 +1,21 @@
-package net.k3nder.gl;
+package net.k3nder.gl.graphic;
 
-import net.k3nder.gl.model.Polygon;
-import net.k3nder.gl.shader.Shader;
-import net.k3nder.gl.visual.Texture;
+import net.k3nder.gl.Camera;
+import net.k3nder.gl.Initializable;
+import net.k3nder.gl.Reloadable;
+import net.k3nder.gl.Renderable;
+import net.k3nder.gl.graphic.model.Polygon;
+import net.k3nder.gl.graphic.shader.Shader;
+import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
-public abstract class GraphicalObject implements Initializable, Renderable<Shader>, Reloadable {
+public abstract class GraphicalObject implements Renderable<Shader>, Reloadable {
     protected Polygon polygon;
     protected Texture texture;
     protected Matrix4f model;
@@ -21,16 +26,14 @@ public abstract class GraphicalObject implements Initializable, Renderable<Shade
     }
 
     public void render(Shader shader) {
-        //shader.use();
-        texture.active(GL_TEXTURE0);
-        texture.addToShader("tex", shader);
+        shader.use();
+        glActiveTexture(GL_TEXTURE0);
+        texture.bind();
+
+        shader.setI("tex", texture.getID());
+
         shader.setMatrix(model, "model");
-        polygon.draw(GL_TRIANGLES);
-        //System.out.println("dd cc");
-    }
-    public void init() {
-        polygon.create(GL_STATIC_DRAW);
-        texture.init();
+        polygon.render(GL_TRIANGLES);
     }
     public void clean() {
         polygon.clean();

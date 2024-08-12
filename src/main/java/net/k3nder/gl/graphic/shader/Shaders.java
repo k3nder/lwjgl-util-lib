@@ -1,6 +1,4 @@
-package net.k3nder.gl.shader;
-
-import net.k3nder.test.Main;
+package net.k3nder.gl.graphic.shader;
 
 import java.io.IOException;
 import java.util.Objects;

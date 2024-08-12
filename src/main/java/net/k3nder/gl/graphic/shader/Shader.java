@@ -1,4 +1,4 @@
-package net.k3nder.gl.shader;
+package net.k3nder.gl.graphic.shader;
 
 import net.k3nder.gl.exceptions.ShaderCompilationException;
 import org.joml.Matrix4f;

@@ -1,7 +1,7 @@
-package net.k3nder.gl.visual;
+package net.k3nder.gl.graphic.visual;
 
 import net.k3nder.gl.Camera;
-import net.k3nder.gl.GraphicalObject;
+import net.k3nder.gl.graphic.GraphicalObject;
 
 import java.util.List;
 
