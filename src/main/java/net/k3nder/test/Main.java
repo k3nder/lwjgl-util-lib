@@ -3,12 +3,14 @@ package net.k3nder.test;
 import net.k3nder.gl.Camera;
 import net.k3nder.gl.DefaultRes;
 import net.k3nder.gl.Window;
+import net.k3nder.gl.graphic.model.ModelLoader;
 import net.k3nder.gl.graphic.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
-import net.k3nder.gl.graphic.text.Font;
 import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Vector3f;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

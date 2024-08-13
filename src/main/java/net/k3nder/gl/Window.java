@@ -1,7 +1,10 @@
 package net.k3nder.gl;
 
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+
+import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -63,13 +66,18 @@ public abstract class Window implements Initializable {
         glfwSetMouseButtonCallback(id, this::MouseClickCallback);
         glfwSetKeyCallback(id, this::KeyCallback);
         glfwSetCharCallback(id, this::CharCallback);
-        glfwSwapInterval(GLFW_TRUE);
+        glfwSetWindowRefreshCallback(id, this::RefreshCallback);
+        glfwSetWindowCloseCallback(id, this::CloseCallback);
+        glfwSetWindowFocusCallback(id, this::FocusCallback);
     }
 
     public void KeyCallback(long id, int key, int scancode, int action, int mods) {}
     public void MousePosCallback(long id, double x, double y) {}
     public void MouseClickCallback(long id, int button, int action, int mods) {}
     public void MouseScrollCallback(long id, double x, double y) {}
+    public void RefreshCallback(long id) {}
+    public void CloseCallback(long id) {}
+    public void FocusCallback(long id, boolean focus) {}
     public void GLSetup() {
         GL.createCapabilities();
         glEnable(GL_DEPTH_TEST);
@@ -101,9 +109,6 @@ public abstract class Window implements Initializable {
     }
     public final void destroy() {
         glfwDestroyWindow(id);
-    }
-    public void setTitle(String title) {
-        this.title = title;
     }
     public void disableControls() {
         disableControls = true;
@@ -169,5 +174,57 @@ public abstract class Window implements Initializable {
         int[] width = new int[1];
         glfwGetWindowSize(id, width, height);
         return height[0];
+    }
+
+    public final void setWindowPos(int x, int y) {
+        glfwSetWindowPos(id, x, y);
+    }
+    public final void setWindowSize(int width, int height) {
+        glfwSetWindowSize(id, width, height);
+    }
+    public final void setWindowSizeLimits(int width, int height) {
+        glfwSetWindowSizeLimits(id, width, height, WIDTH, HEIGHT);
+    }
+    public final void setWindowAspectRatio(int width, int height) {
+        glfwSetWindowAspectRatio(id, width, height);
+    }
+    public final void setWindowMonitor(long monitor, int xpos, int ypox, int width, int height, int refreshRate) {
+        glfwSetWindowMonitor(id, monitor, xpos, ypox, width, height, refreshRate);
+    }
+    public final long getWindowMonitor() {
+        return glfwGetWindowMonitor(id);
+    }
+    public final void getFramebufferSize(IntBuffer width, IntBuffer height) {
+        glfwGetFramebufferSize(id, width, height);
+    }
+    public final void setTitle(String title) {
+        glfwSetWindowTitle(id, title);
+    }
+    public final void setIcon(GLFWImage.Buffer icon) {
+        glfwSetWindowIcon(id, icon);
+    }
+    public final void setOpacity(float opacity) {
+        glfwSetWindowOpacity(id, opacity);
+    }
+    public final void setUserPointer(long userPointer) {
+        glfwSetWindowUserPointer(id, userPointer);
+    }
+    public final long getUserPointer() {
+        return glfwGetWindowUserPointer(id);
+    }
+    public final void getPos(IntBuffer w, IntBuffer h) {
+        glfwGetWindowPos(id, w, h);
+    }
+    public final void getSize(IntBuffer w, IntBuffer h) {
+        glfwGetWindowSize(id, w, h);
+    }
+    public final void minimize() {
+        glfwIconifyWindow(id);
+    }
+    public final void restore() {
+        glfwRestoreWindow(id);
+    }
+    public final void swapInterval(int interval) {
+        glfwSwapInterval(interval);
     }
 }
