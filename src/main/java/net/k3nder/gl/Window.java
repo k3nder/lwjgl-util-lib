@@ -1,5 +1,6 @@
 package net.k3nder.gl;
 
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -24,7 +25,10 @@ public abstract class Window implements Initializable {
         }
         GLFWSetup();
 
-        id = glfwCreateWindow(WIDTH, HEIGHT, title, NULL, NULL);
+        long primaryMotor = glfwGetPrimaryMonitor();
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
+
         if (id == NULL) {
             throw new IllegalStateException("Unable to create GLFW window");
         }
@@ -121,7 +125,7 @@ public abstract class Window implements Initializable {
         glfwSetCharCallback(id, this::CharCallback);
     }
     public void disableMousePos() {
-        glfwSetMouseButtonCallback(id, null);
+        glfwSetCursorPosCallback(id, null);
     }
     public void enableMousePos() {
         glfwSetCursorPosCallback(id, this::MousePosCallback);
@@ -137,5 +141,33 @@ public abstract class Window implements Initializable {
     }
     public void enableMouseClick() {
         glfwSetMouseButtonCallback(id, this::MouseClickCallback);
+    }
+    public final void fullscreen() {
+        long motor = glfwGetPrimaryMonitor();
+        GLFWVidMode vidmode = glfwGetVideoMode(motor);
+
+        glfwSetWindowMonitor(id, motor, 0, 0, vidmode.width(), vidmode.height(), GLFW_DONT_CARE);
+    }
+    public final void windowed() {
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+        // Configurar el tamaño y la posición de la ventana en modo ventana
+        glfwSetWindowMonitor(id, NULL,
+                (vidMode.width() - WIDTH) / 2,
+                (vidMode.height() - HEIGHT) / 2,
+                WIDTH, HEIGHT,
+                GLFW_DONT_CARE);
+    }
+    public final int width() {
+        int[] width = new int[1];
+        int[] height = new int[1];
+        glfwGetWindowSize(id, width, height);
+        return width[0];
+    }
+    public final int height() {
+        int[] height = new int[1];
+        int[] width = new int[1];
+        glfwGetWindowSize(id, width, height);
+        return height[0];
     }
 }
