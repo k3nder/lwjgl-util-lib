@@ -7,6 +7,7 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
@@ -22,6 +23,11 @@ public class ModelLoader implements Loader<Polygon> {
     public Polygon load(InputStream s) {
         try {
             Path tmpfile = Files.createTempFile("model-", "-loader");
+
+            FileWriter writer = new FileWriter(tmpfile.toFile());
+            writer.write(new String(s.readAllBytes()));
+            writer.close();
+
             tmpfile.toFile().deleteOnExit();
             return load(tmpfile.toFile());
 
