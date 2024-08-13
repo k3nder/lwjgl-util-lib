@@ -1,17 +1,16 @@
 package net.k3nder.test;
 
 import net.k3nder.gl.Camera;
+import net.k3nder.gl.DefaultRes;
 import net.k3nder.gl.Window;
-import net.k3nder.gl.graphic.objects.ui.TextField;
+import net.k3nder.gl.graphic.model.ModelLoader;
+import net.k3nder.gl.graphic.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
-import net.k3nder.gl.graphic.shader.Shaders;
-import net.k3nder.gl.graphic.text.FontLoader;
-import net.k3nder.gl.graphic.objects.ui.Text;
 import net.k3nder.gl.graphic.visual.Texture;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,16 +21,16 @@ import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class Main extends Window {
     private List<Cube> blocks = new ArrayList<>();
-    private Pointer pointer;
     private Shader shader;
     private Player player;
     private boolean firstMouse;
     private boolean isEsc;
     private int selectedBlock;
     private int renderingBlocks = 0;
-    private TextField text;
-    private String tt = "heelodsqdqwqsdo";
+    private Pane chatPane;
     private boolean openChat = false;
+
+    private double gameXCursor, gameYCursor;
 
 
     float deltaTime = 0.0f;
@@ -50,6 +49,9 @@ public class Main extends Window {
     @Override
     public void draw() {
 
+        player.getCamera().setHeight(height());
+        player.getCamera().setWidth(width());
+
         float currentFrame = (float) glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -58,9 +60,9 @@ public class Main extends Window {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         shader.use();
 
+
         //light.apply(shader);
-        if (!text.isSelected()) glfwSetCharCallback(id, this::CharCallback);
-        if(openChat) text.render(shader);
+        if (openChat) chatPane.render(shader);
 
         player.getCamera().apply(shader);
         //pointer.render(shader);
@@ -69,7 +71,6 @@ public class Main extends Window {
 
         //shader.setV3f("color", new Vector3f(1, 0,0));
         player.render(shader);
-        pointer.render(shader);
 
         selectedBlock = player.getCamera().checks(blocks, 10);
         if (renderingBlocks != blocks.size()) {
@@ -83,27 +84,23 @@ public class Main extends Window {
 
         Cube.texture = Texture.loadTexture("wall.jpg");
         Cube.CUBE.load();
-        var loader = new FontLoader(Main.class.getResourceAsStream("/Roboto-Black.ttf"), 48);
-        try {
-            text = new TextField(new Vector2f(0, 0), new Vector3f(.05f,.05f, .002f), tt, loader, id);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (FontFormatException e) {
-            throw new RuntimeException(e);
-        }
+
+        var loader = DefaultRes.getFont("Roboto/Roboto-Black", 48);
+        //btn = new Button(new Vector3f(0, 0, -3), new Vector2f(.05f, .05f), Cube.texture, tt, loader);
+        //text = new TextField(new Vector3f(-0.98f, -0.98f, -3f), new Vector3f(.05f,.05f, .00002f), tt, loader, id);
+
+        chatPane = new Pane(new Vector3f(0, 0, 0), new Vector3f(1.999f, 1.999f, 0), Cube.texture);
+        //chatPane.add(new Button(new Vector3f(0), new Vector2f(0.3f), Cube.texture, "Button", loader));
+
         try {
             player = new Player(new Vector3f(0.0f), Camera.create(WIDTH, HEIGHT));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        pointer = new Pointer();
-        pointer.setTexture(Cube.texture);
-        pointer.load();
         blocks.forEach(v -> v.setTexture(Cube.texture));
         player.setTexture(Cube.texture);
         player.load();
-        text.load();
-        shader = Shaders.getDefaultShader("simple");
+        shader = DefaultRes.getShader("simple");
     }
 
     @Override
@@ -125,24 +122,29 @@ public class Main extends Window {
     }
     @Override
     public void CharCallback(long id, int chars) {
-        if (player.getCamera().check(text, 10)) {
-            System.out.println(chars);
-            tt += (char) chars;
-        }
+        //if (player.getCamera().check(text, 10)) {
+        //    System.out.println(chars);
+        //    tt += (char) chars;
+        //}
     }
 
     @Override
     public void KeyCallback(long id, int button, int scancode, int ac, int mods) {
         if (button == GLFW_KEY_C && ac == GLFW_PRESS) {
             openChat = true;
-            text.setSelected(true);
+            //text.setSelected(true);
             disableControls();
+            disableMousePos();
+            glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
         if (button == GLFW_KEY_ESCAPE && ac == GLFW_PRESS) {
             if (openChat) {
                 openChat = false;
-                text.setSelected(false);
+                glfwSetCursorPos(id, gameXCursor, gameYCursor);
+                //text.setSelected(false);
                 enableControls();
+                enableMousePos();
+                glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 return;
             }
             if (isEsc) {
@@ -242,12 +244,16 @@ public class Main extends Window {
     @Override
     public void MousePosCallback(long id, double x, double y) {
         if (isEsc) return;
+        if (openChat) return;
         if (firstMouse)
         {
             player.getCamera().setLastX((float) x);
             player.getCamera().setLastY((float) y);
             firstMouse = false;
         }
+
+        gameXCursor = x;
+        gameYCursor = y;
 
         player.getCamera().rotate(x, y);
         player.getCamera().updateRotation();
@@ -309,7 +315,7 @@ class LightCube extends Cube {
     @Override
     public void load() {
         polygon.load(GL_STATIC_DRAW);
-        customShader = Shaders.getDefaultShader("static_color");
+        customShader = DefaultRes.getShader("static_color");
     }
 }
 class Cube extends net.k3nder.gl.graphic.objects.Cube {
@@ -330,7 +336,7 @@ class Pointer extends Cube {
     @Override
     public void load() {
         super.load();
-        customShader = Shaders.getDefaultShader("static_model_color");
+        customShader = DefaultRes.getShader("static_model_color");
     }
     @Override
     public void render(Shader shade) {

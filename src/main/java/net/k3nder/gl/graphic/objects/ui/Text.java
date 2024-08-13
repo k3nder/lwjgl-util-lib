@@ -1,36 +1,29 @@
 package net.k3nder.gl.graphic.objects.ui;
 
-import net.k3nder.gl.graphic.GraphicalObject;
+import net.k3nder.gl.DefaultRes;
 import net.k3nder.gl.graphic.shader.Shader;
-import net.k3nder.gl.graphic.shader.Shaders;
-import net.k3nder.gl.graphic.text.FontLoader;
+import net.k3nder.gl.graphic.text.Font;
 import net.k3nder.gl.graphic.text.Glyph;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.awt.*;
-import java.io.IOException;
-
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.util.freetype.FreeType.FT_New_Face;
 
 public class Text extends StaticCube {
     protected String text = "" ;
-    private FontLoader font;
-    private Vector2f position;
-    private Vector3f size;
+    protected Font font;
+    protected Vector2f position;
+    protected Vector3f size;
 
-    public Text(FontLoader loader, String text, Vector2f pos, Vector3f size) throws IOException, FontFormatException {
-        super(new Vector3f(pos.x, pos.y, 0), null);
-        position = pos;
+    public Text(Font loader, String text, Vector3f pos, Vector3f size) {
+        super(pos, null);
+        position = new Vector2f(pos.x, pos.y);
         this.size = size;
         this.text = text;
         this.font = loader;
         model.translate(position.x, position.y, 0);
-        staticShader = Shaders.getDefaultShader("static_model");
+        staticShader = DefaultRes.getShader("static_model");
     }
     public void render(Shader shader) {
         staticShader.use();

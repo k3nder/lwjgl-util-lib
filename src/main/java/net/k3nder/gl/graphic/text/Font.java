@@ -1,29 +1,22 @@
 package net.k3nder.gl.graphic.text;
 
 import net.k3nder.gl.graphic.visual.Texture;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.stb.STBImage;
-import org.lwjgl.stb.STBTTFontinfo;
-import org.lwjgl.stb.STBTruetype;
-import org.lwjgl.system.MemoryStack;
-import net.k3nder.utils.UBuffer;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 
-public class FontLoader {
-    private Font font;
+public class Font {
+    private java.awt.Font font;
 
     private HashMap<Character, Texture> glyphs;
 
-    public FontLoader(InputStream path, float size) {
+    public Font(InputStream path, float size) {
         try {
-            Font font = Font.createFont(Font.TRUETYPE_FONT, path);
+            java.awt.Font font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, path);
             this.font = font.deriveFont(size);
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();

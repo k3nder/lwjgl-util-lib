@@ -249,5 +249,11 @@ public class Camera implements Applicable<Shader> {
         float tmin = Math.max(tminX, Math.max(tminY, tminZ));
         return tmin;
     }
+    public void setWidth(int width) {
+        this.width = width;
+    }
+    public void setHeight(int height) {
+        this.height = height;
+    }
 }
 
