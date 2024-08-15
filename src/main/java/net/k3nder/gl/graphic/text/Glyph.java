@@ -1,6 +1,8 @@
 package net.k3nder.gl.graphic.text;
 
 import net.k3nder.gl.graphic.GraphicalObject;
+import net.k3nder.gl.graphic.model.Polygon;
+import net.k3nder.gl.graphic.shader.Shader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
