@@ -80,7 +80,7 @@ import net.k3nder.gl.graphic.objects.Cube;
 import net.k3nder.gl.graphic.shader.Shader;
 import net.k3nder.gl.graphic.shader.Shaders;
 import net.k3nder.gl.graphic.visual.Texture;
-import net.k3nder.test.Main;
+import Main;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;

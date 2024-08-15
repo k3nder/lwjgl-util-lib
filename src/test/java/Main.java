@@ -1,21 +1,22 @@
-package net.k3nder.test;
-
+import net.k3nder.al.ALContext;
+import net.k3nder.al.ALDevice;
+import net.k3nder.al.ALSound;
+import net.k3nder.al.ALSource;
 import net.k3nder.gl.Camera;
 import net.k3nder.gl.DefaultRes;
 import net.k3nder.gl.Window;
-import net.k3nder.gl.graphic.model.ModelLoader;
 import net.k3nder.gl.graphic.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
 import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Vector3f;
+import org.lwjgl.openal.ALCapabilities;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
@@ -160,77 +161,55 @@ public class Main extends Window {
      public void MouseClickCallback(long id, int button, int action, int mods) {
          if (button == org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT && action == org.lwjgl.glfw.GLFW.GLFW_PRESS) {
              if (selectedBlock != -1) {
-                 Vector3f pos = new Vector3f();
-                 blocks.get(selectedBlock).getModel().getTranslation(pos);
+                 ALDevice device = new ALDevice();
 
-                 Vector3f cameraPos = new Vector3f(player.getCamera().getPos());
-                 Vector3f cameraDir = new Vector3f(player.getCamera().getCameraFront()).normalize();
+                 System.out.println("OpenAL device " + device.getID());
 
-                 // Coordenadas mínimas y máximas del cubo seleccionado
-                 Vector3f max = blocks.get(selectedBlock).getMax();
-                 Vector3f min = blocks.get(selectedBlock).getMin();
 
-                 // Variables para guardar el t (factor de escala del rayo)
-                 float tMin = Float.NEGATIVE_INFINITY;
-                 float tMax = Float.POSITIVE_INFINITY;
+                 ALContext context = device.createContext();
+                 context.makeContextCurrent();
 
-                 // Calcular la intersección del rayo con el AABB (cubo)
-                 for (int i = 0; i < 3; i++) {
-                     float invD = 1.0f / cameraDir.get(i);
-                     float t0 = (min.get(i) - cameraPos.get(i)) * invD;
-                     float t1 = (max.get(i) - cameraPos.get(i)) * invD;
-                     if (invD < 0.0f) {
-                         float temp = t0;
-                         t0 = t1;
-                         t1 = temp;
-                     }
-                     tMin = Math.max(tMin, t0);
-                     tMax = Math.min(tMax, t1);
-                     if (tMax <= tMin) {
-                         return; // No hay intersección
-                     }
+                 ALCapabilities alCapabilities = device.getCapabilities();
+
+                 if(alCapabilities.OpenAL10) {
+                     //OpenAL 1.0 is supported
+                     System.out.println("OpenAL 10");
                  }
 
-                 // Punto de intersección
-                 Vector3f hitPoint = new Vector3f(cameraPos).add(new Vector3f(cameraDir).mul(tMin));
+                 float listenerPos[] = {0.0f, 0.0f, 0.0f};  // X, Y, Z
+                 alListenerfv(AL_POSITION, listenerPos);
 
-                 // Determinar la cara que fue seleccionada
-                 if (Math.abs(hitPoint.x - max.x) < 0.001f) {
-                     System.out.println("right face of the cube");
-                     pos.add(new Vector3f(1, 0, 0));
-                 } else if (Math.abs(hitPoint.x - min.x) < 0.001f) {
-                     System.out.println("left face of the cube");
-                     pos.add(new Vector3f(-1, 0, 0));
-                 } else if (Math.abs(hitPoint.y - max.y) < 0.001f) {
-                     System.out.println("top face of the cube");
-                     pos.add(new Vector3f(0, 1, 0));
-                 } else if (Math.abs(hitPoint.y - min.y) < 0.001f) {
-                     System.out.println("bottom face of the cube");
-                     pos.add(new Vector3f(0, -1, 0));
-                 } else if (Math.abs(hitPoint.z - max.z) < 0.001f) {
-                     System.out.println("front face of the cube");
-                     pos.add(new Vector3f(0, 0, 1));
-                 } else if (Math.abs(hitPoint.z - min.z) < 0.001f) {
-                     System.out.println("back face of the cube");
-                     pos.add(new Vector3f(0, 0, -1));
-                 } else {
-                     System.out.println("no selected block");
-                     return;
+                 float listenerOri[] = {0.0f, 0.0f, -1.0f,  // At vector (hacia dónde mira)
+                         0.0f, 1.0f,  0.0f}; // Up vector (hacia arriba)
+                 alListenerfv(AL_ORIENTATION, listenerOri);
+
+                 float listenerVel[] = {0.0f, 0.0f, 0.0f};  // X, Y, Z
+                 alListenerfv(AL_VELOCITY, listenerVel);
+
+                 //System.out.println(UBuffer.streamToByteBuffer(new FileInputStream("sound.ogg")));
+
+                 // code play
+
+                 ALSound sound = null;
+                 try {
+                     sound = ALSound.create("sound_mono.ogg");
+                 } catch (IOException e) {
+                     throw new RuntimeException(e);
                  }
 
-                 System.out.println("last " + blocks.size());
+                 ALSource source = ALSource.create(sound);
 
-                 Cube block = new Cube(pos);
-                 block.load();
-                 blocks.add(0, block);
+                 System.out.println("pla");
 
-                 System.out.println("now " + blocks.size());
+                 source.setFloat(AL_MAX_DISTANCE, 10f);
+                 source.setFloat(AL_ROLLOFF_FACTOR, 1.0f);
+                 source.setFloat(AL_REFERENCE_DISTANCE, 1.0f);
+                 source.setInt(AL_LOOPING, 1);
+                 source.setVector3f(AL_POSITION, new Vector3f(11));
+                 source.setInt(AL_REFERENCE_DISTANCE, 11);
 
-                 selectedBlock = player.getCamera().checks(blocks, 10);
+                 source.play();
 
-                 System.out.println(selectedBlock);
-
-                 //selectedBlock = blocks.size();
              }
          } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == org.lwjgl.glfw.GLFW.GLFW_PRESS) {
              selectedBlock = player.getCamera().checks(blocks, 10);
@@ -324,6 +303,10 @@ class Cube extends net.k3nder.gl.graphic.objects.Cube {
         super(pos, texture);
         load();
     }
+    @Override
+    public void Clicked() {
+        System.out.println("cc");
+    }
 }
 class Pointer extends Cube {
     private Shader customShader;
@@ -344,4 +327,7 @@ class Pointer extends Cube {
         customShader.setVec3("color", model.getTranslation(new Vector3f(1)));
         super.render(customShader);
     }
+}
+class PlaySound {
+
 }
