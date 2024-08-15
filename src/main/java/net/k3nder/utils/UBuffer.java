@@ -28,7 +28,7 @@ public class UBuffer {
 
         return buffers;
     }
-    public static ByteBuffer ioResourceToByteBuffer(InputStream stream, int bufferSize) throws IOException {
+    public static ByteBuffer streamToByteBuffer(InputStream stream, int bufferSize) throws IOException {
         ByteBuffer buffer;
 
         try (InputStream source = stream;
@@ -52,5 +52,8 @@ public class UBuffer {
         }
 
         return buffer;
+    }
+    public static ByteBuffer streamToByteBuffer(InputStream stream) throws IOException {
+        return streamToByteBuffer(stream, 1024);
     }
 }
