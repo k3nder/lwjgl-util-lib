@@ -45,3 +45,6 @@ bin/
 maven
 maven/pom.xml
 wall.jpg
+!/sound_mono.ogg
+!/sound.ogg
+!/src/main/java/net/k3nder/test
