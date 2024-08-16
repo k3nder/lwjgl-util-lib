@@ -1,30 +1,27 @@
 plugins {
     id 'java'
-    id 'maven-publish'
-    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.3'
 }
 
 group = 'io.github.k3nder'
 version = '3.1.0'
 
-
 def lwjglVersion = "3.3.4"
-def lwjglNatives = "natives-linux"
 def jomlVersion = "1.10.7"
 def jomlPrimitivesVersion = "1.10.0"
+def lwjglNatives = "natives-linux"
 
 repositories {
     mavenCentral()
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    implementation 'io.github.k3nder:default-game-sources:1.0.2'
+    implementation project(":")
+
+
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
     implementation "org.lwjgl:lwjgl"
@@ -114,29 +111,9 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-zstd::$lwjglNatives"
     implementation "org.joml:joml:${jomlVersion}"
     implementation "org.joml:joml-primitives:${jomlPrimitivesVersion}"
+
 }
 
 test {
     useJUnitPlatform()
-}
-sonatypeCentralUpload {
-    FileInputStream fileInputStream = new FileInputStream("/home/kristian/Desktop/lwjgl-util-lib/maven/pom.xml")
-    String content = new String(fileInputStream.readAllBytes());
-
-    String newFileContent = content.replaceAll("(<version>)(.*?)(</version>)", '$1' + version + '$3')
-
-    FileWriter writer = new FileWriter("/home/kristian/Desktop/lwjgl-util-lib/maven/pom.xml")
-    writer.write(newFileContent)
-    writer.close()
-
-    username = "${System.getenv("SONATYPE_USERNAME")}"
-    password = "${System.getenv("SONATYPE_PASSWORD")}"
-    archives = files("build/libs/${project.name}-${version}.jar", "build/libs/${project.name}-${version}-sources.jar", "build/libs/${project.name}-${version}-javadoc.jar")
-    pom = file("maven/pom.xml")
-
-    signingKey = System.getenv("SINGING_KEY")
-    signingKeyPassphrase = "${System.getenv("SINGING_PASSWORD")}"
-    publicKey = System.getenv("PUBLIC_KEY")
-
-    publishingType = "AUTOMATIC"
 }
