@@ -120,12 +120,12 @@ test {
     useJUnitPlatform()
 }
 sonatypeCentralUpload {
-    FileInputStream fileInputStream = new FileInputStream("maven/pom.xml")
+    FileInputStream fileInputStream = new FileInputStream("/home/kristian/Desktop/lwjgl-util-lib/maven/pom.xml")
     String content = new String(fileInputStream.readAllBytes());
 
     String newFileContent = content.replaceAll("(<version>)(.*?)(</version>)", '$1' + version + '$3')
 
-    FileWriter writer = new FileWriter("maven/pom.xml")
+    FileWriter writer = new FileWriter("/home/kristian/Desktop/lwjgl-util-lib/maven/pom.xml")
     writer.write(newFileContent)
     writer.close()
 
