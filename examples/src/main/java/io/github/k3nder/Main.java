@@ -10,7 +10,6 @@ import net.k3nder.gl.Window;
 import net.k3nder.defaults.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
 import net.k3nder.gl.graphic.visual.Texture;
-import net.k3nder.math.AABB;
 import org.joml.Vector3f;
 import org.lwjgl.openal.ALCapabilities;
 
@@ -300,7 +299,7 @@ class LightCube extends Cube {
 }
 class Cube extends net.k3nder.defaults.objects.Cube {
     public static Texture texture;
-    private AABB aabb;
+    //private AABB aabb;
     public Cube(Vector3f pos) {
         super(pos, texture);
         load();
