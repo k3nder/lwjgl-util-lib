@@ -10,6 +10,7 @@ import net.k3nder.gl.Window;
 import net.k3nder.defaults.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
 import net.k3nder.gl.graphic.visual.Texture;
+import net.k3nder.math.AABB;
 import org.joml.Vector3f;
 import org.lwjgl.openal.ALCapabilities;
 
@@ -76,6 +77,7 @@ public class Main extends Window {
         player.render(shader);
 
         selectedBlock = player.getCamera().checks(blocks, 10);
+        System.out.println(selectedBlock);
         if (renderingBlocks != blocks.size()) {
             System.out.println("rendering " + blocks.size() + " blocks");
             renderingBlocks = blocks.size();
@@ -108,7 +110,6 @@ public class Main extends Window {
 
     @Override
     public void ControlsCallback() {
-            if (isEsc) return;
             if (glfwGetKey(id, GLFW_KEY_W) == GLFW_PRESS) {
                 player.move(Camera.Direction.FRONT, deltaTime);
             }
@@ -136,9 +137,6 @@ public class Main extends Window {
         if (button == GLFW_KEY_C && ac == GLFW_PRESS) {
             openChat = true;
             //text.setSelected(true);
-            disableControls();
-            disableMousePos();
-            glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
         if (button == GLFW_KEY_ESCAPE && ac == GLFW_PRESS) {
             if (openChat) {
@@ -243,7 +241,8 @@ public class Main extends Window {
     @Override
     public void windowConf() {
         super.windowConf();
-        glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        windowed();
+       // glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 }
 class Player extends Cube {
@@ -301,6 +300,7 @@ class LightCube extends Cube {
 }
 class Cube extends net.k3nder.defaults.objects.Cube {
     public static Texture texture;
+    private AABB aabb;
     public Cube(Vector3f pos) {
         super(pos, texture);
         load();

@@ -177,7 +177,16 @@ public class Camera implements Applicable<Shader> {
             tymax = temp;
         }
 
-        if ((tmin > tymax) || (tymin > tmax)) {
+        float tzmin = (min.z - cameraPos.z) / rayDirection.z;
+        float tzmax = (max.z - cameraPos.z) / rayDirection.z;
+
+        if (tzmin > tzmax) {
+            float temp = tzmin;
+            tzmin = tzmax;
+            tzmax = temp;
+        }
+
+        if ((tmin > tymax) || (tymin > tmax) || (tzmin > tmax)) {
             return false;
         }
 
@@ -188,8 +197,6 @@ public class Camera implements Applicable<Shader> {
         if (tymax < tmax) {
             tmax = tymax;
         }
-
-        float tzmin = getTmin(modelMatrix, cameraPos, rayDirection);
 
         // Verificar si la intersección está dentro del rango máximo de distancia
         return tmin < maxDistance && tmax > 0;
