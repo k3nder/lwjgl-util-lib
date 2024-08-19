@@ -12,22 +12,19 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public abstract class Window implements Initializable {
     protected Long id;
-    protected final Integer WIDTH, HEIGHT;
-    protected String title;
     private boolean disableControls;
 
-    public Window(Integer width, Integer height, String title) {
-        this.WIDTH = width;
-        this.HEIGHT = height;
-        this.title = title;
+    public Window(String title, int width, int height) {
+        id = glfwCreateWindow(width, height, title, 0, 0);
+
+        if (id == NULL) {
+            throw new IllegalStateException("Unable to create GLFW window");
+        }
+        window();
+        show();
     }
 
-    public void init() {
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
-        GLFWSetup();
-
+    public Window(String title) {
         long primaryMotor = glfwGetPrimaryMonitor();
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
@@ -35,10 +32,31 @@ public abstract class Window implements Initializable {
         if (id == NULL) {
             throw new IllegalStateException("Unable to create GLFW window");
         }
-        windowConf();
-        glfwShowWindow(id);
-        GLSetup();
+        window();
+        show();
+    }
+    public Window(String title, long primaryMotor) {
+        GLFWVidMode vidmode = glfwGetVideoMode(primaryMotor);
 
+        id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
+
+        if (id == NULL) {
+            throw new IllegalStateException("Unable to create GLFW window");
+        }
+        window();
+        show();
+    }
+    public Window(String title, long primaryMotor, GLFWVidMode vidmode) {
+        id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
+
+        if (id == NULL) {
+            throw new IllegalStateException("Unable to create GLFW window");
+        }
+        window();
+        glfwShowWindow(id);
+    }
+
+    public void init() {
         while (!glfwWindowShouldClose(id))
             loop();
         cleanup();
@@ -55,10 +73,7 @@ public abstract class Window implements Initializable {
     public void draw() {
 
     }
-    public void components() {
-
-    }
-    public void windowConf() {
+    public void window() {
         glfwMakeContextCurrent(id);
         glfwSetFramebufferSizeCallback(id, this::BufferSizeCallback);
         glfwSetCursorPosCallback(id, this::MousePosCallback);
@@ -78,11 +93,6 @@ public abstract class Window implements Initializable {
     public void RefreshCallback(long id) {}
     public void CloseCallback(long id) {}
     public void FocusCallback(long id, boolean focus) {}
-    public void GLSetup() {
-        GL.createCapabilities();
-        glEnable(GL_DEPTH_TEST);
-        components();
-    }
     public void GLFWSetup() {
         glfwDefaultWindowHints();
     }
@@ -158,9 +168,9 @@ public abstract class Window implements Initializable {
 
         // Configurar el tamaño y la posición de la ventana en modo ventana
         glfwSetWindowMonitor(id, NULL,
-                (vidMode.width() - WIDTH) / 2,
-                (vidMode.height() - HEIGHT) / 2,
-                WIDTH, HEIGHT,
+                (vidMode.width() - width()) / 2,
+                (vidMode.height() - height()) / 2,
+                width(), height(),
                 GLFW_DONT_CARE);
     }
     public final int width() {
@@ -183,7 +193,7 @@ public abstract class Window implements Initializable {
         glfwSetWindowSize(id, width, height);
     }
     public final void setWindowSizeLimits(int width, int height) {
-        glfwSetWindowSizeLimits(id, width, height, WIDTH, HEIGHT);
+        glfwSetWindowSizeLimits(id, width, height, width(), height());
     }
     public final void setWindowAspectRatio(int width, int height) {
         glfwSetWindowAspectRatio(id, width, height);
@@ -227,4 +237,5 @@ public abstract class Window implements Initializable {
     public final void swapInterval(int interval) {
         glfwSwapInterval(interval);
     }
+    public final void makeContextCurrent() { glfwMakeContextCurrent(id); }
 }
