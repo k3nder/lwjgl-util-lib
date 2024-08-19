@@ -52,7 +52,7 @@ public class Font {
 
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                int pixel = pixels[y * image.getWidth() + x];
+                int pixel = pixels[(image.getHeight() - 1 - y) * image.getWidth() + x];
                 buffer.put((byte) ((pixel >> 16) & 0xFF));  // Red
                 buffer.put((byte) ((pixel >> 8) & 0xFF));   // Green
                 buffer.put((byte) (pixel & 0xFF));          // Blue
