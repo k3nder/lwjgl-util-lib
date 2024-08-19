@@ -26,11 +26,6 @@ public class Camera implements Applicable<Shader> {
 
     private float fov = 45.0f;
 
-    private boolean frontStoped = false;
-    private boolean backStoped = false;
-    private boolean leftStoped = false;
-    private boolean rightStoped = false;
-
     private Camera() {}
 
     public static Camera create(int width, int height) {
@@ -50,6 +45,7 @@ public class Camera implements Applicable<Shader> {
     public void move(Direction direction, float deltaTime) {
         cameraPos = calcNewPosToMove(deltaTime, direction);
     }
+    public void setFov(float fov) {this.fov = fov;}
     public void updateRotation() {
         // Calcular la nueva dirección del frente de la cámara
         Vector3f direction = new Vector3f();
@@ -112,7 +108,7 @@ public class Camera implements Applicable<Shader> {
         this.lastY = y;
     }
     public Vector3f getPos() {
-        return cameraPos;
+        return new Vector3f(cameraPos);
     }
     public enum Direction {
         FRONT,
@@ -148,58 +144,34 @@ public class Camera implements Applicable<Shader> {
         return cameraPos;
     }
     public Vector3f getCameraFront() {
-        return cameraFront;
+        return new Vector3f(cameraFront);
     }
     public boolean check(GraphicalObject modelMatrix, float maxDistance) {
-        var cameraPos = new Vector3f(this.cameraPos);
-        var rayDirection = new Vector3f(this.cameraFront).normalize();
 
-        // Calcular el punto máximo y mínimo del AABB
-        Vector3f max = modelMatrix.getMax();
-        Vector3f min = modelMatrix.getMin();
+        var objectPos = new Vector3f();
+        modelMatrix.getModel().getTranslation(objectPos);
 
-        // Variables para guardar los tiempos de entrada y salida
-        float tmin = (min.x - cameraPos.x) / rayDirection.x;
-        float tmax = (max.x - cameraPos.x) / rayDirection.x;
+        var cameraDir = getCameraFront();
 
-        if (tmin > tmax) {
-            float temp = tmin;
-            tmin = tmax;
-            tmax = temp;
-        }
+        // Calcular el vector desde la cámara hasta el objeto
+        Vector3f objectDir = new Vector3f();
+        objectPos.sub(cameraPos, objectDir);
 
-        float tymin = (min.y - cameraPos.y) / rayDirection.y;
-        float tymax = (max.y - cameraPos.y) / rayDirection.y;
+        // Normalizar el vector objectDir
+        objectDir.normalize();
 
-        if (tymin > tymax) {
-            float temp = tymin;
-            tymin = tymax;
-            tymax = temp;
-        }
+        // Normalizar el vector cameraDir (por si acaso no está normalizado)
+        cameraDir.normalize();
 
-        float tzmin = (min.z - cameraPos.z) / rayDirection.z;
-        float tzmax = (max.z - cameraPos.z) / rayDirection.z;
+        // Calcular el coseno del ángulo entre cameraDir y objectDir
+        float cosTheta = cameraDir.dot(objectDir);
 
-        if (tzmin > tzmax) {
-            float temp = tzmin;
-            tzmin = tzmax;
-            tzmax = temp;
-        }
+        // Calcular el coseno del ángulo máximo de visión (FOV / 2)
+        float cosThetaMax = (float) Math.cos(Math.toRadians(fov / 2));
 
-        if ((tmin > tymax) || (tymin > tmax) || (tzmin > tmax)) {
-            return false;
-        }
+        // Verificar si el objeto está dentro del campo de visión
+        return cosTheta >= cosThetaMax;
 
-        if (tymin > tmin) {
-            tmin = tymin;
-        }
-
-        if (tymax < tmax) {
-            tmax = tymax;
-        }
-
-        // Verificar si la intersección está dentro del rango máximo de distancia
-        return tmin < maxDistance && tmax > 0;
     }
     public <T extends GraphicalObject> int checks(List<T> objects, float maxDistance) {
         int closestIndex = -1;
