@@ -4,14 +4,18 @@ import net.k3nder.al.ALContext;
 import net.k3nder.al.ALDevice;
 import net.k3nder.al.ALSound;
 import net.k3nder.al.ALSource;
+import net.k3nder.defaults.objects.ui.Text;
 import net.k3nder.gl.Camera;
 import net.k3nder.defaults.DefaultRes;
 import net.k3nder.gl.Window;
 import net.k3nder.defaults.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
+import net.k3nder.gl.graphic.text.Glyph;
 import net.k3nder.gl.graphic.visual.Texture;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.openal.ALCapabilities;
+import org.lwjgl.opengl.GL;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,13 +44,50 @@ public class Main extends Window {
     float lastFrame = 0.0f;
 
     public static void main(String[] args) {
-        new Main().init();
+        glfwInit();
+
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        Main w = new Main();
+
+        /* Aqui ya puedes usar funciones de OpenGL */
+
+        w.init();
     }
 
     public Main() {
-        super(800, 900, "hello");
+        super("hello", 800, 600);
+
+        this.makeContextCurrent();
+        GL.createCapabilities();
+
+        glEnable(GL_DEPTH_TEST);
+
         blocks = new ArrayList<>();
+
         blocks.add(new Cube(new Vector3f(0)));
+
+
+        Cube.texture = DefaultRes.getFont("Roboto/Roboto-Black", 48).renderTextToImage("hello");
+        Cube.CUBE.load();
+        Glyph.MODEL.load();
+
+        var loader = DefaultRes.getFont("Roboto/Roboto-Black", 100);
+        //btn = new Button(new Vector3f(0, 0, -3), new Vector2f(.05f, .05f), Cube.texture, tt, loader);
+        //text = new TextField(new Vector3f(-0.98f, -0.98f, -3f), new Vector3f(.05f,.05f, .00002f), tt, loader, id);
+
+        chatPane = new Pane(new Vector3f(0, 0, -5f), new Vector3f(1.999f, 1.999f, 0), Cube.texture);
+        chatPane.add(new Text(loader, "hello",new Vector3f(0, 0, 0), new Vector3f(.05f,.05f, .00002f)));
+
+        try {
+            player = new Player(new Vector3f(0.0f), Camera.create(width(), height()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        blocks.forEach(v -> v.setTexture(Cube.texture));
+        player.setTexture(Cube.texture);
+        player.load();
+        shader = DefaultRes.getShader("simple");
     }
 
     @Override
@@ -82,31 +123,6 @@ public class Main extends Window {
             renderingBlocks = blocks.size();
         }
     }
-
-    @Override
-    public void components() {
-
-        Cube.texture = Texture.loadTexture("wall.png");
-        Cube.CUBE.load();
-
-        var loader = DefaultRes.getFont("Roboto/Roboto-Black", 48);
-        //btn = new Button(new Vector3f(0, 0, -3), new Vector2f(.05f, .05f), Cube.texture, tt, loader);
-        //text = new TextField(new Vector3f(-0.98f, -0.98f, -3f), new Vector3f(.05f,.05f, .00002f), tt, loader, id);
-
-        chatPane = new Pane(new Vector3f(0, 0, 0), new Vector3f(1.999f, 1.999f, 0), Cube.texture);
-        //chatPane.add(new Button(new Vector3f(0), new Vector2f(0.3f), Cube.texture, "Button", loader));
-
-        try {
-            player = new Player(new Vector3f(0.0f), Camera.create(WIDTH, HEIGHT));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        blocks.forEach(v -> v.setTexture(Cube.texture));
-        player.setTexture(Cube.texture);
-        player.load();
-        shader = DefaultRes.getShader("simple");
-    }
-
     @Override
     public void ControlsCallback() {
             if (glfwGetKey(id, GLFW_KEY_W) == GLFW_PRESS) {
@@ -238,10 +254,10 @@ public class Main extends Window {
     }
 
     @Override
-    public void windowConf() {
-        super.windowConf();
+    public void window() {
+        super.window();
         windowed();
-       // glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 }
 class Player extends Cube {
