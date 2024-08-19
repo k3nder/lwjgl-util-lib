@@ -103,11 +103,10 @@ public class Polygon implements Reloadable {
         VBO = new VertexBufferObject();
         VBO.bind(GL_ARRAY_BUFFER);
         VBO.uploadData(GL_ARRAY_BUFFER, vertices, mode);
-        //VBO.uploadData(GL_ARRAY_BUFFER, FloatBuffer.wrap(vertices), mode);
 
         EBO = new ElementArrayBuffer();
         EBO.bind();
-        VBO.uploadData(GL_ELEMENT_ARRAY_BUFFER, indices, mode);
+        EBO.uploadData(GL_ELEMENT_ARRAY_BUFFER, indices, mode);
 
         attribs.apply();
         attribs.enable();
