@@ -8,7 +8,7 @@ import org.joml.Vector3f;
 
 public class Glyph extends GraphicalObject {
       private Shader shader;
-    private static final Polygon MODEL =  Polygon.builder()
+      public static final Polygon MODEL =  Polygon.builder()
             .put(-0.5f).put( -0.5f).put( -0.5f).put( 0.0f).put(0.0f).put( -1.0f).put(0.0f).put( 0.0f)
             .put(0.5f ).put(-0.5f ).put(-0.5f).put( 0.0f).put(  0.0f).put( -1.0f).put( 1.0f).put( 0.0f)
             .put(0.5f ).put( 0.5f ).put(-0.5f).put( 0.0f).put( 0.0f).put( -1.0f).put(1.0f).put( 1.0f)
