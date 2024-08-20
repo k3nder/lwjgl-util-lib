@@ -146,7 +146,7 @@ public class Camera implements Applicable<Shader> {
     public Vector3f getCameraFront() {
         return new Vector3f(cameraFront);
     }
-    public boolean check(GraphicalObject modelMatrix, float maxDistance) {
+    public boolean check(GraphicalObject modelMatrix) {
 
         var objectPos = new Vector3f();
         modelMatrix.getModel().getTranslation(objectPos);
@@ -179,7 +179,7 @@ public class Camera implements Applicable<Shader> {
 
         for (int i = 0; i < objects.size(); i++) {
             GraphicalObject object = objects.get(i);
-            if (check(object, maxDistance)) {
+            if (check(object)) {
                 // Calcular la distancia mínima 'tmin' para el objeto actual
                 Vector3f cameraPos = new Vector3f(this.cameraPos);
                 Vector3f rayDirection = new Vector3f(this.cameraFront).normalize();
