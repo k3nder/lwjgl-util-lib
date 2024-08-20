@@ -75,7 +75,7 @@ public abstract class GraphicalObject implements Renderable<Shader>, Reloadable 
         return max;
     }
     public void checkCameraPointer(Camera camera) {
-        if (camera.check(this, 100)) {
+        if (camera.check(this)) {
             if (!lastSelected) {
                 selected = true;
                 lastSelected = true;

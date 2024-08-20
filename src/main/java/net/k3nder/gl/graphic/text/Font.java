@@ -24,10 +24,14 @@ public class Font {
     }
 
     public Texture renderTextToImage(String text) {
+        return renderTextToImage(text, 1,1);
+    }
+
+    public Texture renderTextToImage(String text, int w, int h) {
         // Cargar la fuente desde un archivo
 
         // Crear una imagen que contendrá el texto
-        BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
         g2d.setFont(font);
         int width = g2d.getFontMetrics().stringWidth(text);
@@ -66,6 +70,10 @@ public class Font {
     }
 
     public HashMap<Character, Texture> getGlyphs() {
+        return getGlyphs(1,1);
+    }
+
+    public HashMap<Character, Texture> getGlyphs(int w, int h) {
         if (!(glyphs == null)) return glyphs;
 
         glyphs = new HashMap<>();
@@ -73,7 +81,7 @@ public class Font {
         // load mayus
         for (int i = 32; i <= 126; i++) {
             glyphs.put(Character.valueOf((char) i),
-                    renderTextToImage(String.valueOf((char) i)));
+                    renderTextToImage(String.valueOf((char) i),w,h));
         }
 
         return glyphs;
