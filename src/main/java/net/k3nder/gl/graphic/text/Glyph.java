@@ -5,9 +5,11 @@ import net.k3nder.gl.graphic.model.Polygon;
 import net.k3nder.gl.graphic.shader.Shader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Glyph extends GraphicalObject {
-      private Shader shader;
+      private final Shader shader;
+      private Vector4f color;
       public static final Polygon MODEL =  Polygon.builder()
             .put(-0.5f).put( -0.5f).put( -0.5f).put( 0.0f).put(0.0f).put( -1.0f).put(0.0f).put( 0.0f)
             .put(0.5f ).put(-0.5f ).put(-0.5f).put( 0.0f).put(  0.0f).put( -1.0f).put( 1.0f).put( 0.0f)
@@ -55,6 +57,7 @@ public class Glyph extends GraphicalObject {
     public Glyph(Font loader, char c, Vector2f pos) {
         super();
         texture = loader.getGlyphs().get(c);
+        color = new Vector4f(0);
         model.translate(new Vector3f(pos.x, pos.y, 0));
         shader = Shader.create(
                 """
@@ -87,16 +90,21 @@ public class Glyph extends GraphicalObject {
                 in vec2 TexCoords;
                 
                 uniform sampler2D tex;
+                uniform vec4 color;
                 
                 void main() {
-                    FragColor = texture(tex, TexCoords);
+                    FragColor = texture(tex, TexCoords) * color;
                 }
                 """);
     }
     @Override
     public void render(Shader shader) {
         this.shader.use();
+        this.shader.setV4f("color", color.x,color.y,color.z,color.w);
         super.render(this.shader);
+    }
+    public void setColor(Vector4f color) {
+        this.color = color;
     }
     @Override
     public void load() {
