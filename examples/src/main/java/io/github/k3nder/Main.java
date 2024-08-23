@@ -5,9 +5,10 @@ import net.k3nder.al.ALDevice;
 import net.k3nder.al.ALSound;
 import net.k3nder.al.ALSource;
 import net.k3nder.defaults.objects.ui.Text;
+import net.k3nder.gl.Window;
+import net.k3nder.gl.annotations.KeyHandle;
 import net.k3nder.gl.Camera;
 import net.k3nder.defaults.DefaultRes;
-import net.k3nder.gl.Window;
 import net.k3nder.defaults.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
 import net.k3nder.gl.graphic.text.Glyph;
@@ -147,28 +148,26 @@ public class Main extends Window {
         //}
     }
 
-    @Override
-    public void KeyCallback(long id, int button, int scancode, int ac, int mods) {
-        if (button == GLFW_KEY_C && ac == GLFW_PRESS) {
-            openChat = true;
-            //text.setSelected(true);
+    @KeyHandle(GLFW_KEY_C)
+    public void OpenChat() {
+        openChat = true;
+    }
+    @KeyHandle(GLFW_KEY_ESCAPE)
+    public void Close() {
+        if (openChat) {
+            openChat = false;
+            glfwSetCursorPos(id, gameXCursor, gameYCursor);
+            //text.setSelected(false);
+            enableControls();
+            enableMousePos();
+            glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            return;
         }
-        if (button == GLFW_KEY_ESCAPE && ac == GLFW_PRESS) {
-            if (openChat) {
-                openChat = false;
-                glfwSetCursorPos(id, gameXCursor, gameYCursor);
-                //text.setSelected(false);
-                enableControls();
-                enableMousePos();
-                glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                return;
-            }
-            if (isEsc) {
-                close();
-            }
-            isEsc = true;
-            glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        if (isEsc) {
+            close();
         }
+        isEsc = true;
+        glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
 

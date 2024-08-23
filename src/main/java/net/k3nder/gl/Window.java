@@ -1,5 +1,6 @@
 package net.k3nder.gl;
 
+import net.k3nder.gl.annotations.KeyHandle;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -22,6 +23,11 @@ public abstract class Window implements Initializable {
         }
         window();
         show();
+
+        this.makeContextCurrent();
+        GL.createCapabilities();
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     public Window(String title) {
@@ -34,6 +40,11 @@ public abstract class Window implements Initializable {
         }
         window();
         show();
+
+        this.makeContextCurrent();
+        GL.createCapabilities();
+
+        glEnable(GL_DEPTH_TEST);
     }
     public Window(String title, long primaryMotor) {
         GLFWVidMode vidmode = glfwGetVideoMode(primaryMotor);
@@ -45,6 +56,11 @@ public abstract class Window implements Initializable {
         }
         window();
         show();
+
+        this.makeContextCurrent();
+        GL.createCapabilities();
+
+        glEnable(GL_DEPTH_TEST);
     }
     public Window(String title, long primaryMotor, GLFWVidMode vidmode) {
         id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
@@ -54,6 +70,11 @@ public abstract class Window implements Initializable {
         }
         window();
         glfwShowWindow(id);
+
+        this.makeContextCurrent();
+        GL.createCapabilities();
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     public void init() {
@@ -62,7 +83,7 @@ public abstract class Window implements Initializable {
         cleanup();
         glfwTerminate();
     }
-    private void loop() {
+    protected void loop() {
         if(!disableControls) ControlsCallback();
 
         draw();
@@ -86,7 +107,9 @@ public abstract class Window implements Initializable {
         glfwSetWindowFocusCallback(id, this::FocusCallback);
     }
 
-    public void KeyCallback(long id, int key, int scancode, int action, int mods) {}
+    public void KeyCallback(long id, int key, int scancode, int action, int mods) {
+        KeyHandle.Func.loadEvents(this.getClass(), this,scancode,key,action,mods);
+    }
     public void MousePosCallback(long id, double x, double y) {}
     public void MouseClickCallback(long id, int button, int action, int mods) {}
     public void MouseScrollCallback(long id, double x, double y) {}
