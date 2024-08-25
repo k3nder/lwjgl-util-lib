@@ -6,12 +6,13 @@ import net.k3nder.al.ALSound;
 import net.k3nder.al.ALSource;
 import net.k3nder.defaults.objects.ui.Text;
 import net.k3nder.gl.Camera;
-import net.k3nder.defaults.DefaultRes;
 import net.k3nder.gl.Window;
+import net.k3nder.defaults.DefaultRes;
 import net.k3nder.defaults.objects.ui.Pane;
 import net.k3nder.gl.graphic.shader.Shader;
 import net.k3nder.gl.graphic.text.Glyph;
 import net.k3nder.gl.graphic.visual.Texture;
+
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.openal.ALCapabilities;
@@ -46,7 +47,7 @@ public class Main extends Window {
     public static void main(String[] args) {
         glfwInit();
 
-        GLFWErrorCallback.createPrint(System.err).set();
+        //GLFWErrorCallback.createPrint(System.err).set();
 
         Main w = new Main();
 
@@ -125,16 +126,16 @@ public class Main extends Window {
     }
     @Override
     public void ControlsCallback() {
-            if (glfwGetKey(id, GLFW_KEY_W) == GLFW_PRESS) {
+            if (native_window.key(GLFW_KEY_W) == GLFW_PRESS) {
                 player.move(Camera.Direction.FRONT, deltaTime);
             }
-            if (glfwGetKey(id, GLFW_KEY_A) == GLFW_PRESS) {
+            if (native_window.key(GLFW_KEY_A) == GLFW_PRESS) {
                 player.move(Camera.Direction.LEFT,  deltaTime);
             }
-            if (glfwGetKey(id, GLFW_KEY_D) == GLFW_PRESS) {
+            if (native_window.key(GLFW_KEY_D) == GLFW_PRESS) {
                 player.move(Camera.Direction.RIGHT, deltaTime);
             }
-            if (glfwGetKey(id, GLFW_KEY_S) == GLFW_PRESS) {
+            if (native_window.key(GLFW_KEY_S) == GLFW_PRESS) {
                 player.move(Camera.Direction.BACK, deltaTime);
             }
             //System.out.println("acc");
@@ -257,7 +258,7 @@ public class Main extends Window {
     public void window() {
         super.window();
         windowed();
-        glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        native_window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 }
 class Player extends Cube {
