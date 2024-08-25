@@ -5,11 +5,15 @@ lwjgl-util-lib is a library to handle lwjgl functionalities more fluently and wi
 To use lwjgl-util-lib you need to have the lwjgl natives and lwjgl libraries, version 3.0.0 or higher, and the JOML library used for calculations.
 
 You can get the libraries at [here](https://www.lwjgl.org/customize)
+> [!NOTE]
+> You don't need to import all the LWJGL bindings, only the ones you use, but you need to always have the JOML library, for example to use the AL utilities you need to have the OpenAL binding for LWJGL.
 
 ### Creating a window
 To create a window there is an abstract class that is used for this, an example:
 ```java
 import net.kn3der.gl.Window;
+
+import org.lwjgl.glfw.GLFW;
 
 public class MainWindow extends Window {
     public MainWindow() {
@@ -17,6 +21,8 @@ public class MainWindow extends Window {
         super(800, 600, "My first window");
     }
     public static void main(String[] args) {
+        // init GLFW
+        GLFW.glfwInit();
         new MainWindow().init();
     }
 }
@@ -41,8 +47,9 @@ To render objects more efficiently there is another class called GraphicalObject
 To create a GraphicObject you have to do it in a specific way, e.g.:
 ```java
 private GraphicalObject mycube;
-@Override
-public void createComponents() {
+
+public MainWindow() {
+    super(800, 600, "My first window");
     mycube = new Cube( new Vector3f(0, 0,0),
             Texture.builder()
                     .colorChanel(GL_RGB)
@@ -53,11 +60,8 @@ public void createComponents() {
                     .configuration(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
                     .source(MainWindow.class.getResourceAsStream("/container.jpg"))
                     .create()
-    );
-}
-@Override
-public void initComponents() {
     mycube.init();
+    );
 }
 ```
 Here a cube is being created that is located on the axis x = 0 y = 0 z = 0, and it is using the texture located in the resources called container.jpg
@@ -88,13 +92,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class MainWindow extends Window {
     public MainWindow() {
         super(800, 600, "My first window");
-    }
-
-    private GraphicalObject mycube;
-    private Shader shader;
-
-    @Override
-    public void createComponents() {
         mycube = new Cube(new Vector3f(0, 0, 0),
                 Texture.builder()
                         .colorChanel(GL_RGB)
@@ -106,13 +103,12 @@ public class MainWindow extends Window {
                         .source(MainWindow.class.getResourceAsStream("/container.jpg"))
                         .create()
         );
-    }
-
-    @Override
-    public void initComponents() {
         mycube.init();
         shader = Shaders.getDefaultShader("static_model");
     }
+
+    private GraphicalObject mycube;
+    private Shader shader:
 
     @Override
     public void draw() {
