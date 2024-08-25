@@ -1,8 +1,12 @@
 package net.k3nder.gl;
 
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+
+import net.k3nder.glfw.GLFWMonitor;
+import net.k3nder.glfw.GLFWWindow;
 
 import java.nio.IntBuffer;
 
@@ -11,53 +15,36 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public abstract class Window implements Initializable {
-    protected Long id;
+    protected final GLFWWindow native_window;
     private boolean disableControls;
 
     public Window(String title, int width, int height) {
-        id = glfwCreateWindow(width, height, title, 0, 0);
-
-        if (id == NULL) {
-            throw new IllegalStateException("Unable to create GLFW window");
-        }
+        native_window = new GLFWWindow(width, height, title, GLFWMonitor.primary(), NULL); 
         window();
         show();
     }
 
     public Window(String title) {
-        long primaryMotor = glfwGetPrimaryMonitor();
+        GLFWMonitor primaryMotor = GLFWMonitor.primary();
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
-
-        if (id == NULL) {
-            throw new IllegalStateException("Unable to create GLFW window");
-        }
+        native_window = new GLFWWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
         window();
         show();
     }
-    public Window(String title, long primaryMotor) {
-        GLFWVidMode vidmode = glfwGetVideoMode(primaryMotor);
-
-        id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
-
-        if (id == NULL) {
-            throw new IllegalStateException("Unable to create GLFW window");
-        }
+    public Window(String title, GLFWMonitor primaryMotor) {
+        GLFWVidMode vidmode = primaryMotor.getVideoMode();
+        native_window = new GLFWWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
         window();
         show();
     }
-    public Window(String title, long primaryMotor, GLFWVidMode vidmode) {
-        id = glfwCreateWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
-
-        if (id == NULL) {
-            throw new IllegalStateException("Unable to create GLFW window");
-        }
+    public Window(String title, GLFWMonitor primaryMotor, GLFWVidMode vidmode) {
+        native_window = new GLFWWindow(vidmode.width(), vidmode.height(), title, primaryMotor, NULL);
         window();
-        glfwShowWindow(id);
+        show();
     }
 
     public void init() {
-        while (!glfwWindowShouldClose(id))
+        while (!native_window.shouldClose())
             loop();
         cleanup();
         glfwTerminate();
@@ -67,23 +54,23 @@ public abstract class Window implements Initializable {
 
         draw();
 
-        glfwSwapBuffers(id);
-        glfwPollEvents();
+        native_window.swapBuffers();
+        native_window.pollEvents();
     }
     public void draw() {
 
     }
     public void window() {
-        glfwMakeContextCurrent(id);
-        glfwSetFramebufferSizeCallback(id, this::BufferSizeCallback);
-        glfwSetCursorPosCallback(id, this::MousePosCallback);
-        glfwSetScrollCallback(id, this::MouseScrollCallback);
-        glfwSetMouseButtonCallback(id, this::MouseClickCallback);
-        glfwSetKeyCallback(id, this::KeyCallback);
-        glfwSetCharCallback(id, this::CharCallback);
-        glfwSetWindowRefreshCallback(id, this::RefreshCallback);
-        glfwSetWindowCloseCallback(id, this::CloseCallback);
-        glfwSetWindowFocusCallback(id, this::FocusCallback);
+        native_window.makeContextCurrent();
+        native_window.setFramebufferSizeCallback(this::BufferSizeCallback);
+        native_window.setCursorPosCallback(this::MousePosCallback);
+        native_window.setScrollCallback(this::MouseScrollCallback);
+        native_window.setMouseButtonCallback(this::MouseClickCallback);
+        native_window.setKeyCallback(this::KeyCallback);
+        native_window.setCharCallback(this::CharCallback);
+        native_window.setRefreshCallback(this::RefreshCallback);
+        native_window.setCloseCallback(this::CloseCallback);
+        native_window.setFocusCallback(this::FocusCallback);
     }
 
     public void KeyCallback(long id, int key, int scancode, int action, int mods) {}
@@ -109,16 +96,16 @@ public abstract class Window implements Initializable {
 
     }
     public final void close() {
-        glfwSetWindowShouldClose(id, true);
+        native_window.close();
     }
     public final void hide() {
-        glfwHideWindow(id);
+        native_window.hide();
     }
     public final void show() {
-        glfwShowWindow(id);
+        native_window.show();
     }
     public final void destroy() {
-        glfwDestroyWindow(id);
+        native_window.destroy();
     }
     public void disableControls() {
         disableControls = true;
@@ -128,114 +115,105 @@ public abstract class Window implements Initializable {
 
     }
     public void disableKey() {
-        glfwSetKeyCallback(id, null);
+        native_window.setKeyCallback(null);
     }
     public void enableKey() {
-        glfwSetKeyCallback(id, this::KeyCallback);
+        native_window.setKeyCallback(this::KeyCallback);
     }
     public void disableChar() {
-        glfwSetCharCallback(id, null);
+        native_window.setCharCallback(null);
     }
     public void enableChar() {
-        glfwSetCharCallback(id, this::CharCallback);
+        native_window.setCharCallback(this::CharCallback);
     }
     public void disableMousePos() {
-        glfwSetCursorPosCallback(id, null);
+        native_window.setCursorPosCallback(null);
     }
     public void enableMousePos() {
-        glfwSetCursorPosCallback(id, this::MousePosCallback);
+        native_window.setCursorPosCallback(this::MousePosCallback);
     }
     public void disableMouseScroll() {
-        glfwSetScrollCallback(id, null);
+        native_window.setScrollCallback(null);
     }
     public void enableMouseScroll() {
-        glfwSetScrollCallback(id, this::MouseScrollCallback);
+        native_window.setScrollCallback(this::MouseScrollCallback);
     }
     public void disableMouseClick() {
-        glfwSetMouseButtonCallback(id, null);
+        native_window.setMouseButtonCallback(null);
     }
     public void enableMouseClick() {
-        glfwSetMouseButtonCallback(id, this::MouseClickCallback);
+        native_window.setMouseButtonCallback(this::MouseClickCallback);
     }
     public final void fullscreen() {
-        long motor = glfwGetPrimaryMonitor();
-        GLFWVidMode vidmode = glfwGetVideoMode(motor);
+        GLFWMonitor motor = GLFWMonitor.primary();
+        GLFWVidMode vidmode = motor.getVideoMode();
 
-        glfwSetWindowMonitor(id, motor, 0, 0, vidmode.width(), vidmode.height(), GLFW_DONT_CARE);
+        native_window.setMonitor(motor, 0, 0, vidmode.width(), vidmode.height(), GLFW_DONT_CARE);
     }
     public final void windowed() {
         GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
         // Configurar el tamaño y la posición de la ventana en modo ventana
-        glfwSetWindowMonitor(id, NULL,
+        native_window.setMonitor(new GLFWMonitor(NULL),
                 (vidMode.width() - width()) / 2,
                 (vidMode.height() - height()) / 2,
                 width(), height(),
                 GLFW_DONT_CARE);
     }
     public final int width() {
-        int[] width = new int[1];
-        int[] height = new int[1];
-        glfwGetWindowSize(id, width, height);
-        return width[0];
+        return native_window.getSize().x;
     }
     public final int height() {
-        int[] height = new int[1];
-        int[] width = new int[1];
-        glfwGetWindowSize(id, width, height);
-        return height[0];
+       return native_window.getSize().y; 
     }
 
     public final void setWindowPos(int x, int y) {
-        glfwSetWindowPos(id, x, y);
+    	native_window.setPos(x, y);
     }
     public final void setWindowSize(int width, int height) {
-        glfwSetWindowSize(id, width, height);
+        native_window.setSize(width, height);
     }
     public final void setWindowSizeLimits(int width, int height) {
-        glfwSetWindowSizeLimits(id, width, height, width(), height());
+        native_window.setSizeLimits(width, height, width(), height());
     }
     public final void setWindowAspectRatio(int width, int height) {
-        glfwSetWindowAspectRatio(id, width, height);
+        native_window.setAspectRatio(width, height);
     }
-    public final void setWindowMonitor(long monitor, int xpos, int ypox, int width, int height, int refreshRate) {
-        glfwSetWindowMonitor(id, monitor, xpos, ypox, width, height, refreshRate);
+    public final void setWindowMonitor(GLFWMonitor monitor, int xpos, int ypox, int width, int height, int refreshRate) {
+        native_window.setMonitor(monitor, xpos, ypox, width, height, refreshRate);
     }
-    public final long getWindowMonitor() {
-        return glfwGetWindowMonitor(id);
-    }
-    public final void getFramebufferSize(IntBuffer width, IntBuffer height) {
-        glfwGetFramebufferSize(id, width, height);
+    public final Vector2i getFramebufferSize() {
+        return native_window.getFramebufferSize();
     }
     public final void setTitle(String title) {
-        glfwSetWindowTitle(id, title);
+        native_window.setTitle(title);
     }
     public final void setIcon(GLFWImage.Buffer icon) {
-        glfwSetWindowIcon(id, icon);
+        native_window.setIcon(icon);
     }
     public final void setOpacity(float opacity) {
-        glfwSetWindowOpacity(id, opacity);
+        native_window.setOpacity(opacity);
     }
     public final void setUserPointer(long userPointer) {
-        glfwSetWindowUserPointer(id, userPointer);
+        native_window.setUserPointer(userPointer);
     }
     public final long getUserPointer() {
-        return glfwGetWindowUserPointer(id);
+        return native_window.getUserPointer();
     }
-    public final void getPos(IntBuffer w, IntBuffer h) {
-        glfwGetWindowPos(id, w, h);
+    public final Vector2i getPos() {
+        return native_window.getPos();
     }
-    public final void getSize(IntBuffer w, IntBuffer h) {
-        glfwGetWindowSize(id, w, h);
+    public final Vector2i getSize() {
+        return native_window.getSize();
     }
     public final void minimize() {
-        glfwIconifyWindow(id);
+       native_window.iconify();
     }
     public final void restore() {
-        glfwRestoreWindow(id);
+       native_window.restore();
     }
     public final void swapInterval(int interval) {
-        glfwSwapInterval(interval);
+        native_window.swapInterval(interval);
     }
-    public final void makeContextCurrent() { glfwMakeContextCurrent(id); }
+    public final void makeContextCurrent() { native_window.makeContextCurrent(); }
 }
